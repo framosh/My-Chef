@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFDD0"
+    android:fitsSystemWindows="true">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:paddingBottom="220dp"
+            tools:context=".MainActivity">
+
+            <!-- BOTÓN DE SOPORTE -->
+            <ImageButton
+                android:id="@+id/btnSupport"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_menu_manage"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#3E2723"
+                android:contentDescription="Soporte y Mantenimiento"
+                app:layout_constraintTop_toTopOf="@id/ivMainLogo"
+                app:layout_constraintBottom_toBottomOf="@id/ivMainLogo"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- LOGO DE LA APP -->
+            <ImageView
+                android:id="@+id/ivMainLogo"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/logo_chef"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- TÍTULO (Centrado horizontalmente en su espacio) -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="My Chef"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:textColor="#3E2723"
+                android:gravity="center"
+                app:layout_constraintTop_toTopOf="@id/ivMainLogo"
+                app:layout_constraintBottom_toBottomOf="@id/ivMainLogo"
+                app:layout_constraintStart_toEndOf="@id/btnSupport"
+                app:layout_constraintEnd_toStartOf="@id/ivMainLogo" />
+
+            <!-- NOMBRE DEL PLATILLO -->
+            <!-- NOMBRE DEL PLATILLO CON BOTÓN DE IA ✨ -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDishName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="8dp"
+                app:hintTextColor="#5D4037"
+                android:textColorHint="#5D4037"
+                app:layout_constraintTop_toBottomOf="@id/ivMainLogo"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnGenerateAI">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDishName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#3E2723"
+                    android:hint="Nombre del platillo" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnGenerateAI"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_directions"
+                app:tint="#3E2723"
+                android:contentDescription="Generar con IA"
+                app:layout_constraintTop_toTopOf="@id/tilDishName"
+                app:layout_constraintBottom_toBottomOf="@id/tilDishName"
+                app:layout_constraintEnd_toEndOf="parent" />
+            <!-- SECCIÓN DE FOTOGRAFÍA -->
+            <TextView
+                android:id="@+id/tvPhotoLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fotografía del Platillo:"
+                android:textStyle="bold"
+                android:textColor="#3E2723"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/tilDishName"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/ivDishPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginTop="8dp"
+                android:background="#F5F5DC"
+                android:scaleType="centerInside"
+                android:src="@drawable/splash_chef"
+                app:layout_constraintTop_toBottomOf="@id/tvPhotoLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/btnSelectPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seleccionar de Galería"
+                android:backgroundTint="#5D4037"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/ivDishPhoto"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/Widget.AppCompat.Button.Small"/>
+
+            <!-- CATEGORÍA -->
+            <TextView
+                android:id="@+id/tvCategoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Categoría:"
+                android:layout_marginTop="12dp"
+                android:textStyle="bold"
+                android:textColor="#3E2723"
+                app:layout_constraintTop_toBottomOf="@id/btnSelectPhoto"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Spinner
+                android:id="@+id/spinnerCategory"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp"
+                android:background="#F5F5DC"
+                android:backgroundTint="#3E2723"
+                app:layout_constraintTop_toBottomOf="@id/tvCategoryLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- COMENSALES -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilServings"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:hintTextColor="#5D4037"
+                android:textColorHint="#5D4037"
+                app:layout_constraintTop_toBottomOf="@id/spinnerCategory"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etServings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#3E2723"
+                    android:hint="Comensales base"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- SECCIÓN INGREDIENTES -->
+            <TextView
+                android:id="@+id/tvIngredientsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Añadir Ingredientes:"
+                android:textStyle="bold"
+                android:textColor="#3E2723"
+                android:layout_marginTop="20dp"
+                app:layout_constraintTop_toBottomOf="@id/tilServings"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/layoutIngredientInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                app:layout_constraintTop_toBottomOf="@id/tvIngredientsLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <EditText
+                    android:id="@+id/etIngredientName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.5"
+                    android:hint="Nombre"
+                    android:textColor="#3E2723"
+                    android:textColorHint="#8D6E63"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etIngredientQty"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
+                    android:hint="Cant."
+                    android:textColor="#3E2723"
+                    android:textColorHint="#8D6E63"
+                    android:inputType="numberDecimal"
+                    android:textSize="14sp" />
+
+                <Spinner
+                    android:id="@+id/spinnerUnit"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="0.9"
+                    android:background="#F5F5DC"
+                    android:backgroundTint="#3E2723" />
+
+                <Button
+                    android:id="@+id/btnAddIngredient"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+"
+                    android:backgroundTint="#5D4037"
+                    style="@style/Widget.AppCompat.Button.Small" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvAddedIngredientsList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Ingredientes: ninguno"
+                android:textSize="15sp"
+                android:textColor="#3E2723"
+                android:layout_marginTop="8dp"
+                android:padding="8dp"
+                android:background="#F5F5DC"
+                app:layout_constraintTop_toBottomOf="@id/layoutIngredientInput"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- SECCIÓN: PASOS DE PREPARACIÓN -->
+            <TextView
+                android:id="@+id/tvStepsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pasos de Preparación:"
+                android:textStyle="bold"
+                android:textColor="#3E2723"
+                android:layout_marginTop="20dp"
+                app:layout_constraintTop_toBottomOf="@id/tvAddedIngredientsList"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/layoutStepInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                app:layout_constraintTop_toBottomOf="@id/tvStepsLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <EditText
+                    android:id="@+id/etStepDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:hint="Descripción del paso"
+                    android:textColor="#3E2723"
+                    android:textColorHint="#8D6E63"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btnAddStep"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+"
+                    android:backgroundTint="#5D4037"
+                    style="@style/Widget.AppCompat.Button.Small" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvAddedStepsList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Pasos: ninguno"
+                android:textSize="15sp"
+                android:textColor="#3E2723"
+                android:layout_marginTop="12dp"
+                android:padding="8dp"
+                android:background="#E0E0E0"
+                app:layout_constraintTop_toBottomOf="@id/layoutStepInput"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <!-- BOTONES FLOTANTES -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnGoToSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="16dp"
+        app:backgroundTint="#5D4037"
+        app:srcCompat="@android:drawable/ic_menu_search"
+        app:tint="@android:color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        app:backgroundTint="#3E2723"
+        app:srcCompat="@android:drawable/ic_menu_save"
+        app:tint="@android:color/white" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

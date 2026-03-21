@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFDD0"
+    android:fitsSystemWindows="true">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:paddingBottom="150dp">
+
+            <!-- 1. FOTOGRAFÍA DEL PLATILLO -->
+            <ImageView
+                android:id="@+id/ivDetailImage"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:background="#F5F5DC"
+                android:scaleType="centerCrop"
+                android:src="@android:drawable/ic_menu_gallery"
+                android:layout_marginBottom="8dp" />
+
+            <!-- BOTÓN PARA CAMBIAR IMAGEN -->
+            <Button
+                android:id="@+id/btnChangePhoto"
+                style="@style/Widget.AppCompat.Button.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Cambiar Imagen"
+                android:backgroundTint="#5D4037"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- CONTENEDOR DE TÍTULO Y LOGO -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- LOGO PEQUEÑO DE MARCA -->
+                <ImageView
+                    android:id="@+id/ivDetailLogo"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/logo_chef"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- NOMBRE DEL PLATILLO -->
+                <TextView
+                    android:id="@+id/tvDetailTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Nombre del Platillo"
+                    android:textColor="#3E2723"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/ivDetailLogo"
+                    app:layout_constraintEnd_toStartOf="@id/ivDetailLogo"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/ivDetailLogo" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/tvDetailInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#5D4037"
+                android:text="Categoría • Comensales" />
+
+            <!-- ... EL RESTO DEL ARCHIVO (CÁLCULO, INGREDIENTES, PASOS) SE MANTIENE IGUAL ... -->
+            <!-- SECCIÓN DE CÁLCULO DE COMENSALES -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="20dp"
+                android:padding="12dp"
+                android:background="#F5F5DC">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="¿Para cuántas personas?"
+                    android:textColor="#3E2723"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etTargetServings"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="4"
+                    android:textColor="#3E2723"
+                    android:backgroundTint="#3E2723"
+                    android:textAlignment="center" />
+
+                <Button
+                    android:id="@+id/btnCalculate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Calcular"
+                    android:backgroundTint="#5D4037"
+                    style="@style/Widget.AppCompat.Button.Small" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="16dp"
+                android:background="#3E2723" />
+
+            <!-- INGREDIENTES -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="INGREDIENTES"
+                android:textStyle="bold"
+                android:textColor="#3E2723" />
+
+            <TextView
+                android:id="@+id/tvDetailIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#121212"
+                android:textSize="16sp"
+                android:lineSpacingExtra="4dp"/>
+
+            <!-- PREPARACIÓN -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="PREPARACIÓN"
+                android:textStyle="bold"
+                android:textColor="#3E2723" />
+
+            <TextView
+                android:id="@+id/tvDetailSteps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#121212"
+                android:textSize="16sp"
+                android:lineSpacingExtra="4dp"
+                android:hyphenationFrequency="none"
+                android:maxLines="5000" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabBackDetail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="24dp"
+        app:backgroundTint="#5D4037"
+        app:srcCompat="@android:drawable/ic_menu_revert"
+        app:tint="@android:color/white"
+        android:contentDescription="Volver" />
+
+    <!-- Botón para volver atrás (Izquierda) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabShareWhatsapp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        app:backgroundTint="#25D366"
+        app:srcCompat="@android:drawable/ic_menu_share"
+        app:tint="@android:color/white"
+        android:contentDescription="Compartir por WhatsApp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

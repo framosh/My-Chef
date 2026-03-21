@@ -1,0 +1,29 @@
+# --- ARCHIVOS DE ANDROID STUDIO Y GRADLE ---
+*.iml
+.gradle
+/local.properties
+/.idea/
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# --- ARCHIVOS SENSIBLES DE FIREBASE ---
+# ¡IMPORTANTE! El google-services.json contiene tus llaves de Firebase. 
+# Si el repositorio es público, deberías ignorarlo.
+# app/google-services.json
+
+# --- ARCHIVOS TEMPORALES DEL SISTEMA ---
+.DS_Store
+/captures
+*.bak
+*.log
+
+# --- ARCHIVOS ESPECÍFICOS DE KOTLIN ---
+.kotlin/
+.base_dir/
+
+# --- ARCHIVOS DE RESPALDO/NOTAS ---
+Exportacion de datos.txt
+archivos/

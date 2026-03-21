@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "14572378886",
+    "project_id": "aitaskgenius",
+    "storage_bucket": "aitaskgenius.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14572378886:android:4b85b4fbf20d0d08df5c87",
+        "android_client_info": {
+          "package_name": "com.example.aitaskgenius"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "14572378886-vm7kn0lnqngd8mvnsth5hgevpii59u9h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.aitaskgenius",
+            "certificate_hash": "b5770b787f08195f4fbd0579d1af0b3adac704bb"
+          }
+        },
+        {
+          "client_id": "14572378886-a2hrdpquvb7cbnui4bfo51eone4m7o1v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDebmv52fBtr6g_JkpLIYPNWzowrc7KV50"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "14572378886-a2hrdpquvb7cbnui4bfo51eone4m7o1v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

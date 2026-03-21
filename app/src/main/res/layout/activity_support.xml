@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#F5F5F5"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Panel de Soporte"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#514239"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btnSyncAll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#e5f5c1"
+        android:text="Sincronizar Todo al Servidor"
+        android:backgroundTint="#5D4037"
+        android:padding="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Enviará todas las recetas locales al servidor remoto."
+        android:textSize="14sp"
+        android:textColor="#757575"
+        android:layout_marginBottom="32dp"/>
+
+    <!-- CONTENEDOR DE PROGRESO (Oculto por defecto) -->
+    <LinearLayout
+        android:id="@+id/layoutProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:gravity="center">
+
+        <ProgressBar
+            android:id="@+id/pbSync"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="0"
+            android:progressTint="#3E2723"/>
+
+        <TextView
+            android:id="@+id/tvProgressStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Procesando: 0/0"
+            android:textColor="#3E2723"
+            android:textStyle="bold"/>
+            
+    </LinearLayout>
+
+</LinearLayout>
