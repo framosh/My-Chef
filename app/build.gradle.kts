@@ -1,8 +1,11 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -17,6 +20,24 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // CARGA ROBUSTA DE PROPIEDADES
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+        
+        // Solo mantenemos UnsplashKey si decides dejarla local, 
+        // aunque lo ideal es que también pase al servidor más adelante.
+        val unsplashKey = localProperties.getProperty("UNSPLASH_ACCESS_KEY") ?: ""
+        
+        // Inyectamos solo las claves necesarias en BuildConfig
+        buildConfigField("String", "UNSPLASH_ACCESS_KEY", "\"$unsplashKey\"")
+        
+        if (unsplashKey.isNotEmpty()) {
+            println("CONFIRMACIÓN: Unsplash Key cargada correctamente")
+        }
     }
 
     buildTypes {
@@ -41,51 +62,43 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
 dependencies {
-    // LIBRERÍAS BASE ANDROID
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-
-    // LIBRERÍA GSON
     implementation("com.google.code.gson:gson:2.11.0")
-    // implementation(libs.generativeai) // Usaremos la versión directa abajo para evitar conflictos
 
-    // LIBRERÍAS DE ROOM
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
 
-    // --- CONFIGURACIÓN DE FIREBASE (Usando BoM para evitar errores de versión) ---
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-firestore")
 
-
-    // LIBRERÍAS DE CREDENTIALS (Google Sign In Moderno)
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
-    // TEST
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.firebase.crashlytics.buildtools)
 
-    // LIBRERÍAS PARA COMUNICACIÓN HTTP
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.gson)
 
-    // SDK de Google AI para usar Gemini (IMPORTANTE: Usar este y no google-genai)
+    // Nota: Podrías eliminar 'generativeai' si ya no usas el SDK directo, 
+    // pero lo dejamos por si necesitas otras funciones de IA en el futuro.
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 }

@@ -60,7 +60,6 @@
                 app:layout_constraintStart_toEndOf="@id/btnSupport"
                 app:layout_constraintEnd_toStartOf="@id/ivMainLogo" />
 
-            <!-- NOMBRE DEL PLATILLO -->
             <!-- NOMBRE DEL PLATILLO CON BOTÓN DE IA ✨ -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDishName"
@@ -87,12 +86,12 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_directions"
-                app:tint="#3E2723"
+                android:src="@drawable/ic_gemini_spark"
                 android:contentDescription="Generar con IA"
                 app:layout_constraintTop_toTopOf="@id/tilDishName"
                 app:layout_constraintBottom_toBottomOf="@id/tilDishName"
                 app:layout_constraintEnd_toEndOf="parent" />
+
             <!-- SECCIÓN DE FOTOGRAFÍA -->
             <TextView
                 android:id="@+id/tvPhotoLabel"

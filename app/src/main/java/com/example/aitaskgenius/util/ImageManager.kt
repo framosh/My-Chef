@@ -3,98 +3,114 @@ package com.example.aitaskgenius.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import androidx.core.net.toUri
+import com.example.aitaskgenius.network.ApiClient
+import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import retrofit2.awaitResponse
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
 
 object ImageManager {
 
-    private const val TAG = "ImageManager"
+    private const val TAG = "AI_DEBUG"
 
-    fun getBase64FromUri(context: Context, uriString: String?): String? {
-        if (uriString == null) return null
+    /**
+     * Convierte un archivo File a una cadena Base64.
+     */
+    fun fileToBase64(file: File): String? {
         return try {
-            val uri = uriString.toUri()
-            val bitmap = context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
-            } ?: return null
-
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
             val outputStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-            Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream) // Comprimimos al 70% para no saturar el JSON
+            val byteArray = outputStream.toByteArray()
+            Base64.encodeToString(byteArray, Base64.DEFAULT)
         } catch (e: Exception) {
-            Log.e(TAG, "Error al convertir a Base64: ${e.message}", e)
+            Log.e(TAG, "Error al convertir imagen a Base64: ${e.message}")
             null
         }
     }
 
     /**
-     * Descarga una imagen generada por IA siguiendo la documentación oficial de Pollinations.
+     * Convierte una Uri de la galería a un archivo File físico en el caché.
+     */
+    fun uriToFile(context: Context, uri: Uri): File? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val file = File(context.cacheDir, "temp_upload_${System.currentTimeMillis()}.jpg")
+            val outputStream = FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+            file
+        } catch (e: Exception) {
+            Log.e(TAG, "Error en uriToFile: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * Busca una imagen profesional a través del PROXY PHP (Seguro).
      */
     suspend fun downloadAiImage(context: Context, query: String): File? = withContext(Dispatchers.IO) {
-        // 1. Limpieza del prompt (Normalización para evitar caracteres que rompan la URL)
-        val clean = java.text.Normalizer.normalize(query.lowercase(), java.text.Normalizer.Form.NFD)
-            .replace("[\\u0300-\\u036f]".toRegex(), "")
-            .replace("[^a-z0-9 ]".toRegex(), "")
-            .trim()
-        
-        // 2. Codificación: La nueva API prefiere %20 en lugar de +
-        val encoded = URLEncoder.encode("$clean professional culinary photography", "UTF-8").replace("+", "%20")
-        
-        var attempt = 0
-        val maxAttempts = 3
-        
-        while (attempt < maxAttempts) {
-            attempt++
-            try {
-                val seed = (0..999999).random()
-                // URL SEGÚN DOCUMENTACIÓN ACTUAL: image.pollinations.ai/prompt/
-                val imageUrl = "https://image.pollinations.ai/prompt/$encoded?width=800&height=600&seed=$seed&model=turbo&nologo=true"
+        try {
+            Log.d(TAG, "Solicitando imagen al proxy para: $query")
+            
+            // Llamamos al nuevo endpoint proxy en tu servidor
+            val response = ApiClient.instance.getUnsplashImageProxy(query).awaitResponse()
 
-                Log.d(TAG, "Intento $attempt - Solicitando: $imageUrl")
-                
-                val connection = URL(imageUrl).openConnection() as java.net.HttpURLConnection
-                connection.connectTimeout = 30000
-                connection.readTimeout = 30000
-                // User-Agent completo para simular navegador real
-                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                connection.connect()
-
-                if (connection.responseCode == 200) {
-                    val contentType = connection.contentType
-                    if (contentType != null && !contentType.startsWith("image/")) {
-                        Log.e(TAG, "El servidor no devolvió una imagen (Tipo: $contentType)")
-                        throw Exception("No es una imagen")
-                    }
-
-                    val bytes = connection.inputStream.use { it.readBytes() }
-                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    
-                    if (bitmap != null) {
-                        val file = File(context.cacheDir, "ai_gen_${System.currentTimeMillis()}.jpg")
-                        FileOutputStream(file).use { out -> 
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out) 
-                        }
-                        Log.d(TAG, "¡Imagen recibida y guardada!")
-                        return@withContext file
-                    }
+            if (response.isSuccessful) {
+                val imageUrl = response.body()?.imageUrl
+                if (!imageUrl.isNullOrEmpty()) {
+                    Log.d(TAG, "URL obtenida del proxy: $imageUrl")
+                    return@withContext downloadFromUrl(context, imageUrl)
                 } else {
-                    Log.w(TAG, "Error del servidor: ${connection.responseCode}. Reintentando...")
-                    delay(2000)
+                    Log.e(TAG, "El proxy no devolvió ninguna URL")
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Excepción en intento $attempt: ${e.message}")
-                delay(1000)
+            } else {
+                Log.e(TAG, "Error en el proxy de imágenes: ${response.code()}")
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Excepción en el proceso de imagen: ${e.message}")
+        }
+        return@withContext null
+    }
+
+    private suspend fun downloadFromUrl(context: Context, imageUrl: String): File? = withContext(Dispatchers.IO) {
+        try {
+            val url = URL(imageUrl)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.connectTimeout = 15000
+            connection.readTimeout = 15000
+            
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                val bitmap = BitmapFactory.decodeStream(connection.inputStream)
+                if (bitmap != null) {
+                    val file = File(context.cacheDir, "recipe_img_${System.currentTimeMillis()}.jpg")
+                    FileOutputStream(file).use { out ->
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                    }
+                    return@withContext file
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al descargar imagen: ${e.message}")
         }
         return@withContext null
     }
 }
+
+/**
+ * Modelo para la respuesta del Proxy de Unsplash
+ * Usamos @SerializedName para mantener la compatibilidad con el JSON del servidor (image_url)
+ * siguiendo las convenciones de nomenclatura de Kotlin (camelCase).
+ */
+data class UnsplashProxyResponse(
+    @SerializedName("image_url") val imageUrl: String
+)

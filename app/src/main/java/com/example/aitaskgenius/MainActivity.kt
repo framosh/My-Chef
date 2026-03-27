@@ -2,6 +2,7 @@ package com.example.aitaskgenius
 
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.database.ktx.database
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -22,30 +23,32 @@ import retrofit2.Response
 import android.net.Uri
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import java.io.File
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private var selectedImageUri: String? = null
+    private var currentImageFile: File? = null 
     private val tempSteps = mutableListOf<com.example.aitaskgenius.data.model.PreparationStep>()
     private lateinit var binding: ActivityMainBinding
     private val recipeRepository = RecipeRepository
     private val tempIngredients = mutableListOf<Ingredient>()
     
-    // Inicializamos el Manager de IA
     private val aiManager = AiManager()
 
     private val pickImageLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
-            try {
-                val contentResolver = applicationContext.contentResolver
-                val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(it, takeFlags)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
             selectedImageUri = it.toString()
             binding.ivDishPhoto.setImageURI(it)
+            val file = ImageManager.uriToFile(this, it)
+            if (file != null) {
+                currentImageFile = file
+                Log.d("FILE_DEBUG", "Imagen de galería lista: ${file.absolutePath}")
+            }
         }
     }
 
@@ -55,10 +58,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.ivMainLogo.setOnLongClickListener {
-            startActivity(Intent(this, SupportActivity::class.java))
-            true 
-        }
+        // Sincronizamos el perfil del usuario con Firebase
+        saveUserProfileToFirebase()
 
         setupSpinners()
         setupButtons()
@@ -72,6 +73,30 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    /**
+     * Sincroniza los datos básicos del usuario con Firebase Realtime Database.
+     */
+    private fun saveUserProfileToFirebase() {
+        val user = Firebase.auth.currentUser
+        if (user != null) {
+            val database = Firebase.database.reference
+            val userProfile = mapOf(
+                "name" to (user.displayName ?: "Usuario de My Chef"),
+                "email" to (user.email ?: ""),
+                "lastLogin" to System.currentTimeMillis()
+            )
+            
+            // Escribimos en el nodo users/$uid siguiendo las nuevas reglas
+            database.child("users").child(user.uid).updateChildren(userProfile)
+                .addOnSuccessListener {
+                    Log.d("FIREBASE_DEBUG", "Perfil de usuario sincronizado ✨")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FIREBASE_DEBUG", "Error al sincronizar perfil: ${e.message}")
+                }
+        }
     }
 
     private fun setupSpinners() {
@@ -102,34 +127,40 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val finalImageUri = selectedImageUri ?: "android.resource://${packageName}/${R.drawable.splash_chef}"
         val servings = servingsStr.toInt()
         val newRecipe = Recipe(
             id = (System.currentTimeMillis() % 10000).toInt(),
             title = name,
-            description = "Receta de IA para $servings personas",
+            description = "Receta para $servings personas",
             category = selectedCategory,
             baseServings = servings,
             ingredients = ArrayList(tempIngredients),
             preparationSteps = ArrayList(tempSteps),
             servingSuggestion = "Servir caliente",
-            imageUrl = finalImageUri
+            imageUrl = selectedImageUri ?: ""
         )
 
-        // Usamos el ImageManager para el Base64
-        newRecipe.imageEncoded = ImageManager.getBase64FromUri(this, finalImageUri)
+        currentImageFile?.let { file ->
+            val base64 = ImageManager.fileToBase64(file)
+            newRecipe.imageEncoded = base64
+        }
+
         recipeRepository.saveRecipe(newRecipe)
-        exportToRemoteDatabase(newRecipe)
+        exportRecipeWithImage(newRecipe)
         clearFields()
     }
 
-    private fun exportToRemoteDatabase(recipe: Recipe) {
+    private fun exportRecipeWithImage(recipe: Recipe) {
         ApiClient.instance.exportRecipe(recipe).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) Toast.makeText(this@MainActivity, "Sincronizado", Toast.LENGTH_SHORT).show()
+                if (response.isSuccessful) {
+                    Toast.makeText(this@MainActivity, "¡Receta e Imagen sincronizadas! 🚀", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.e("HTTP_DEBUG", "Error servidor: ${response.code()}")
+                }
             }
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.e("HTTP_EXPORT", "Fallo de red: ${t.message}")
+                Log.e("HTTP_DEBUG", "Fallo red: ${t.message}")
             }
         })
     }
@@ -173,6 +204,7 @@ class MainActivity : AppCompatActivity() {
         binding.etServings.text?.clear()
         binding.ivDishPhoto.setImageResource(R.drawable.splash_chef)
         selectedImageUri = null
+        currentImageFile = null
         tempIngredients.clear()
         tempSteps.clear()
         updateStepsPreview()
@@ -197,16 +229,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun generateRecipeWithAI() {
         val dishName = binding.etDishName.text.toString().trim()
-        if (dishName.isEmpty()) {
-            showError("Escribe un nombre")
-            return
-        }
+        if (dishName.isEmpty()) return
 
         lifecycleScope.launch {
             try {
                 Toast.makeText(this@MainActivity, "IA Generando Receta... ✨", Toast.LENGTH_SHORT).show()
-                
-                // Llamamos al AiManager
                 val aiRecipe = aiManager.generateRecipe(dishName)
 
                 if (aiRecipe != null) {
@@ -222,19 +249,24 @@ class MainActivity : AppCompatActivity() {
                     updateIngredientPreview()
                     updateStepsPreview()
                     
-                    // Descargamos imagen con ImageManager
-                    val imageFile = ImageManager.downloadAiImage(this@MainActivity, dishName)
-                    imageFile?.let {
-                        selectedImageUri = Uri.fromFile(it).toString()
-                        binding.ivDishPhoto.setImageBitmap(android.graphics.BitmapFactory.decodeFile(it.absolutePath))
-                        Toast.makeText(this@MainActivity, "¡Listo! ✨", Toast.LENGTH_SHORT).show()
+                    val searchTerm = aiRecipe.image_search_term ?: dishName
+                    Log.d("AI_DEBUG", "Término inteligente para Unsplash: $searchTerm")
+                    
+                    val imageFile = ImageManager.downloadAiImage(this@MainActivity, searchTerm)
+
+                    withContext(Dispatchers.Main) {
+                        if (imageFile != null) {
+                            currentImageFile = imageFile
+                            selectedImageUri = Uri.fromFile(imageFile).toString()
+                            binding.ivDishPhoto.setImageBitmap(android.graphics.BitmapFactory.decodeFile(imageFile.absolutePath))
+                            Toast.makeText(this@MainActivity, "¡Receta e Imagen listas! ✨", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@MainActivity, "Receta lista, pero no se encontró una imagen profesional. Puedes añadir una manualmente. 📸", Toast.LENGTH_LONG).show()
+                        }
                     }
-                } else {
-                    showError("La IA no pudo generar la receta")
                 }
             } catch (e: Exception) {
                 Log.e("AI_ERROR", "Error: ${e.message}")
-                showError("IA ocupada, intente de nuevo")
             }
         }
     }

@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">AiTask Genius</string>
     <string name="default_web_client_id">14572378886-a2hrdpquvb7cbnui4bfo51eone4m7o1v.apps.googleusercontent.com</string>
+    
+    <string name="recipe_detail_info">%1$s • Base original: %2$d personas</string>
+    <string name="ingredient_item"> • %1$.2f %2$s de %3$s</string>
+    <string name="step_item">%1$d. %2$s</string>
+    <string name="adjustment_toast">Ajustado para %1$d personas</string>
 </resources>
-
